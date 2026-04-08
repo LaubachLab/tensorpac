@@ -107,3 +107,10 @@ Use the following Bibtex entry to cite it :
         pmcid = {PMC7654762},
         pages = {e1008302},
     }
+
+
+## LaubachLab fork
+ 
+This fork applies three compatibility patches to `utils.py` for Python 3.12 / NumPy ≥1.22 / Matplotlib ≥3.8. The upstream package (v0.6.5) is no longer actively maintained. No changes to scientific functionality.
+ 
+Install: `pip install git+https://github.com/LaubachLab/tensorpac.git`
