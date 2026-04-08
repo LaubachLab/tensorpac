@@ -8,6 +8,9 @@ from tensorpac.methods.meth_pac import _kl_hr
 from tensorpac.pac import _PacObj, _PacVisual
 from tensorpac.io import set_log_level
 
+from matplotlib.gridspec import GridSpec
+import matplotlib.pyplot as plt
+
 logger = logging.getLogger('tensorpac')
 
 
@@ -61,7 +64,7 @@ def _check_freq(f):
     if len(f.reshape(-1)) == 1:
         raise ValueError("The length of f should at least be 2.")
     elif 2 in f.shape:  # f of shape (N, 2) or (2, N)
-        if f.shape[1] is not 2:
+        if f.shape[1] != 2:
             f = f.T
     elif np.squeeze(f).shape == (4,):  # (f_start, f_end, f_width, f_step)
         f = _pair_vectors(*tuple(np.squeeze(f)))
@@ -189,7 +192,7 @@ class PSD(object):
         if isinstance(confidence, (int, float)) and (0 < confidence < 100):
             logger.info(f"    Add {confidence}th confidence interval")
             interval = (100. - confidence) / 2
-            kw = dict(axis=0, interpolation='nearest')
+            kw = dict(axis=0, method='nearest')
             psd_min = np.percentile(yvec, interval, **kw)
             psd_max = np.percentile(yvec, 100. - interval, **kw)
             plt.fill_between(xvec, psd_max, psd_min, color='lightgray',
@@ -197,12 +200,12 @@ class PSD(object):
                              label=f"{confidence}th confidence interval")
             plt.legend(fontsize=fz_labels)
         plt.xlabel("Frequencies (Hz)", fontsize=fz_labels)
-        plt.ylabel("Power (V**2/Hz)", fontsize=fz_labels)
+        plt.ylabel("Power (mV²/Hz)", fontsize=fz_labels)
         plt.title(f"PSD mean over {self._n_trials} trials", fontsize=fz_title)
         plt.xlim(f_min, f_max)
         if log:
             from matplotlib.ticker import ScalarFormatter
-            plt.xscale('log', basex=10)
+            plt.xscale('log', base=10)
             plt.gca().xaxis.set_major_formatter(ScalarFormatter())
         if grid:
             plt.grid(color='grey', which='major', linestyle='-',
@@ -236,7 +239,6 @@ class PSD(object):
         ax : Matplotlib axis
             The matplotlib axis that contains the figure
         """
-        import matplotlib.pyplot as plt
         # manage input variables
         kw['fz_labels'] = kw.get('fz_labels', fz_labels)
         kw['fz_title'] = kw.get('fz_title', fz_title)
@@ -244,7 +246,7 @@ class PSD(object):
         kw['xlabel'] = kw.get('xlabel', "Frequencies (Hz)")
         kw['ylabel'] = kw.get('ylabel', "Trials")
         kw['title'] = kw.get('title', "Single-trial PSD")
-        kw['cblabel'] = kw.get('cblabel', "Power (V**2/Hz)")
+        kw['cblabel'] = kw.get('cblabel', "Power (mV²/Hz)")
         # (f_min, f_max)
         xvec, psd = self._freqs, self._psd
         f_types = (int, float)
@@ -262,7 +264,7 @@ class PSD(object):
         _viz.pacplot(psd, xvec, trials, **kw)
         if log:
             from matplotlib.ticker import ScalarFormatter
-            plt.xscale('log', basex=10)
+            plt.xscale('log', base=10)
             plt.gca().xaxis.set_major_formatter(ScalarFormatter())
         if grid:
             plt.grid(color='grey', which='major', linestyle='-',
@@ -686,8 +688,6 @@ class PeakLockedTF(_PacObj, _PacVisual):
             Additional arguments are sent to the
             :class:`tensorpac.utils.PeakLockedTF.pacplot` method
         """
-        import matplotlib.pyplot as plt
-        from matplotlib.gridspec import GridSpec
         # manage additional arguments
         kwargs['colorbar'] = False
         kwargs['ylabel'] = 'Frequency for amplitude (hz)'
@@ -723,7 +723,7 @@ class PeakLockedTF(_PacObj, _PacVisual):
         # external colorbar
         plt.subplot(gs[slice(1, 5), -1])
         cb = plt.colorbar(self._plt_im, pad=0.01, cax=plt.gca())
-        cb.set_label('Power (V**2/Hz)', fontsize=kwargs['fz_cblabel'])
+        cb.set_label('Power (mV²/Hz)', fontsize=kwargs['fz_cblabel'])
         cb.outline.set_visible(False)
         # phase plot
         plt.subplot(gs[slice(6, 8), 0:-1])
