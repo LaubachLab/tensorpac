@@ -51,8 +51,8 @@ def test_stationarity(x, p=.05):
                          "(n_epochs, n_times)")
     n_epochs, n_times = x.shape
     # test time series
-    logger.info(f"Performing a Augmented Dickey-Fuller test on {n_epochs} "
-                f"epochs with p={p}")
+    # logger.info(f"Performing a Augmented Dickey-Fuller test on {n_epochs} "
+#                 f"epochs with p={p}")
     epochs = ['epoch %i' % k for k in range(n_epochs)]
     pvalues = np.zeros((n_epochs,), dtype=float)
     adf_stat = np.zeros_like(pvalues)
@@ -71,6 +71,6 @@ def test_stationarity(x, p=.05):
                       columns=cols)
     n_signi = stationary.sum()
     # n_not_signi = (~stationary.sum())
-    logger.info(f"    {n_signi}/{n_epochs} epochs were found as significantly "
-                f"stationary at p={p}")
+    # logger.info(f"    {n_signi}/{n_epochs} epochs were found as significantly "
+#                 f"stationary at p={p}")
     return df

@@ -135,8 +135,8 @@ class PSD(object):
         assert isinstance(x, np.ndarray) and (x.ndim == 2), (
             "x should be a 2d array of shape (n_epochs, n_times)")
         self._n_trials, self._n_times = x.shape
-        logger.info(f"Compute PSD over {self._n_trials} trials and "
-                    f"{self._n_times} time points")
+        # logger.info(f"Compute PSD over {self._n_trials} trials and "
+#                     f"{self._n_times} time points")
         self._freqs, self._psd = periodogram(x, fs=sf, window=None,
                                              nfft=self._n_times,
                                              detrend='constant',
@@ -190,7 +190,7 @@ class PSD(object):
                  label='mean PSD over trials')
         # plot confidence interval
         if isinstance(confidence, (int, float)) and (0 < confidence < 100):
-            logger.info(f"    Add {confidence}th confidence interval")
+            # logger.info(f"    Add {confidence}th confidence interval")
             interval = (100. - confidence) / 2
             kw = dict(axis=0, method='nearest')
             psd_min = np.percentile(yvec, interval, **kw)
@@ -338,8 +338,8 @@ class BinAmplitude(_PacObj):
         assert all([isinstance(k, (int, float)) for k in f_amp]), (
             "`f_amp` input should be a list of two integers / floats")
         assert isinstance(n_bins, int), "`n_bins` should be an integer"
-        logger.info(f"Binning {f_amp}Hz amplitude according to {f_pha}Hz "
-                    "phase")
+        # logger.info(f"Binning {f_amp}Hz amplitude according to {f_pha}Hz "
+#                     "phase")
         # extract phase and amplitude
         kw = dict(keepfilt=False, edges=edges, n_jobs=n_jobs)
         pha = self.filter(sf, x, 'phase', **kw)
@@ -438,8 +438,8 @@ class ITC(_PacObj, _PacVisual):
         assert x.ndim <= 2, ("`x` input should be an array of shape "
                              "(n_epochs, n_times)")
         self._n_trials = x.shape[0]
-        logger.info("Inter-Trials Coherence (ITC)")
-        logger.info(f"    extracting {len(self.xvec)} phases")
+        # logger.info("Inter-Trials Coherence (ITC)")
+        # logger.info(f"    extracting {len(self.xvec)} phases")
         # extract phase and amplitude
         kw = dict(keepfilt=False, edges=edges, n_jobs=n_jobs)
         pha = self.filter(sf, x, 'phase', **kw)
@@ -558,7 +558,7 @@ class PeakLockedTF(_PacObj, _PacVisual):
         _PacObj.__init__(self, f_pha=f_pha, f_amp=f_amp, dcomplex='hilbert',
                          cycle=cycle)
         _PacVisual.__init__(self)
-        logger.info("PeakLockedTF object defined")
+        # logger.info("PeakLockedTF object defined")
         # inputs checking
         x = np.atleast_2d(x)
         assert isinstance(x, np.ndarray) and (x.ndim == 2)
@@ -571,28 +571,28 @@ class PeakLockedTF(_PacObj, _PacVisual):
         if times is None:
             cue = int(cue)
             times = np.arange(n_times)
-            logger.info(f"    align on sample cue={cue}")
+            # logger.info(f"    align on sample cue={cue}")
         else:
             assert isinstance(times, np.ndarray) and (len(times) == n_times)
             cue_time = cue
             cue = np.abs(times - cue).argmin() - 1
-            logger.info(f"    align on time-point={cue_time} (sample={cue})")
+            # logger.info(f"    align on time-point={cue_time} (sample={cue})")
         self.cue, self._times = cue, times
 
         # extract phase and amplitudes
-        logger.info(f"    extract phase and amplitudes "
-                    f"(n_amps={len(self.yvec)})")
+        # logger.info(f"    extract phase and amplitudes "
+#                     f"(n_amps={len(self.yvec)})")
         kw = dict(keepfilt=False, n_jobs=n_jobs)
         pha = self.filter(sf, x, 'phase', n_jobs=n_jobs, keepfilt=True)
         amp = self.filter(sf, x, 'amplitude', n_jobs=n_jobs)
         self._pha, self._amp = pha, amp ** 2
 
         # peak detection
-        logger.info(f"    running peak detection around sample={cue}")
+        # logger.info(f"    running peak detection around sample={cue}")
         self.shifts = self._peak_detection(self._pha.squeeze(), cue)
 
         # realign phases and amplitudes
-        logger.info(f"    realign the {n_epochs} phases and amplitudes")
+        # logger.info(f"    realign the {n_epochs} phases and amplitudes")
         self.amp_a = self._shift_signals(self._amp, self.shifts, fill_with=0.)
         self.pha_a = self._shift_signals(self._pha, self.shifts, fill_with=0.)
 

@@ -153,7 +153,7 @@ class _PacObj(object):
                            f"form at least n_perm={n_perm_req} permutations")
 
         # ---------------------------------------------------------------------
-        logger.info(f"    infer p-values at (p={p}, mcp={mcp})")
+        # logger.info(f"    infer p-values at (p={p}, mcp={mcp})")
         # computes the pvalues
         if mcp is 'maxstat':
             max_p = perm.reshape(n_perm, -1).max(1)[np.newaxis, ...]
@@ -318,7 +318,7 @@ class Pac(_PacObj, _PacPlt):
                          cycle=cycle, width=width)
         _PacPlt.__init__(self)
         self.n_bins = int(n_bins)
-        logger.info("Phase Amplitude Coupling object defined")
+        # logger.info("Phase Amplitude Coupling object defined")
 
     def fit(self, pha, amp, n_perm=200, p=.05, mcp='maxstat', n_jobs=-1,
             random_state=None, verbose=None):
@@ -390,7 +390,7 @@ class Pac(_PacObj, _PacPlt):
 
         # ---------------------------------------------------------------------
         # true pac estimation
-        logger.info(f'    true PAC estimation using {self.method}')
+        # logger.info(f'    true PAC estimation using {self.method}')
         fcn = get_pac_fcn(self.idpac[0], self.n_bins, p)
         pac = fcn(pha, amp)
         self._pac = pac.copy()
@@ -400,8 +400,8 @@ class Pac(_PacObj, _PacPlt):
         if compute_surro:
             if random_state is None:
                 random_state = int(np.random.randint(0, 10000, size=1))
-            logger.info(f"    compute surrogates ({self.str_surro}, {n_perm} "
-                        f"permutations, random_state={random_state})")
+            # logger.info(f"    compute surrogates ({self.str_surro}, {n_perm} "
+#                         f"permutations, random_state={random_state})")
             surro = compute_surrogates(pha, amp, self.idpac[1], fcn, n_perm,
                                        n_jobs, random_state)
             self._surrogates = surro
@@ -413,8 +413,8 @@ class Pac(_PacObj, _PacPlt):
         # normalize (if needed)
         if self._idpac[2] != 0:
             # Get the mean / deviation of surrogates
-            logger.info("    normalize true PAC estimation by surrogates "
-                        f"({self.str_norm})")
+            # logger.info("    normalize true PAC estimation by surrogates "
+#                         f"({self.str_norm})")
             normalize(self.idpac[2], pac, surro)
 
         return pac
@@ -474,8 +474,8 @@ class Pac(_PacObj, _PacPlt):
         assert x_pha.shape == x_amp.shape, ("Inputs `x_pha` and `x_amp` must "
                                             "have the same shape.")
         # Extract phase (npha, ...) and amplitude (namp, ...) :
-        logger.info(f"    extract phases (n_pha={len(self.xvec)}) and "
-                    f"amplitudes (n_amps={len(self.yvec)})")
+        # logger.info(f"    extract phases (n_pha={len(self.xvec)}) and "
+#                     f"amplitudes (n_amps={len(self.yvec)})")
         kw = dict(keepfilt=False, edges=edges, n_jobs=1)
         pha = self.filter(sf, x_pha, 'phase', **kw)
         amp = self.filter(sf, x_amp, 'amplitude', **kw)
@@ -605,7 +605,7 @@ class EventRelatedPac(_PacObj, _PacVisual):
         _PacObj.__init__(self, f_pha=f_pha, f_amp=f_amp, dcomplex=dcomplex,
                          cycle=cycle, width=width)
         _PacPlt.__init__(self)
-        logger.info("Event Related PAC object defined")
+        # logger.info("Event Related PAC object defined")
 
     def fit(self, pha, amp, method='circular', smooth=None, n_jobs=-1,
             n_perm=None, p=.05, mcp='fdr', verbose=None):
@@ -652,19 +652,19 @@ class EventRelatedPac(_PacObj, _PacVisual):
         # method switch
         if method == 'circular':
             self.method = "ERPAC (Voytek et al. 2013)"
-            logger.info(f"    Compute {self.method}")
+            # logger.info(f"    Compute {self.method}")
             self._erpac, self._pvalues = erpac(pha, amp)
             self.infer_pvalues(p=p, mcp=mcp)
         elif method == 'gc':
             self.method = "Gaussian-Copula ERPAC"
-            logger.info(f"    Compute {self.method}")
+            # logger.info(f"    Compute {self.method}")
             # copnorm phases and amplitudes then compute erpac
             sco = copnorm(np.stack([np.sin(pha), np.cos(pha)], axis=-2))
             amp = copnorm(amp)[..., np.newaxis, :]
             self._erpac = ergcpac(sco, amp, smooth=smooth, n_jobs=n_jobs)
             # compute permutations (if needed)
             if isinstance(n_perm, int) and (n_perm > 0):
-                logger.info(f"    Compute {n_perm} permutations")
+                # logger.info(f"    Compute {n_perm} permutations")
                 self._surrogates = _ergcpac_perm(sco, amp, smooth=smooth,
                                                  n_jobs=n_jobs, n_perm=n_perm)
                 self.infer_pvalues(p=p, mcp=mcp)
@@ -714,8 +714,8 @@ class EventRelatedPac(_PacObj, _PacVisual):
         """
         x_amp = x_pha if not isinstance(x_amp, np.ndarray) else x_amp
         # extract phases and amplitudes
-        logger.info(f"    Extract phases (n_pha={len(self.xvec)}) and "
-                    f"amplitudes (n_amps={len(self.yvec)})")
+        # logger.info(f"    Extract phases (n_pha={len(self.xvec)}) and "
+#                     f"amplitudes (n_amps={len(self.yvec)})")
         kw = dict(keepfilt=False, edges=edges, n_jobs=1)
         pha = self.filter(sf, x_pha, ftype='phase', **kw)
         amp = self.filter(sf, x_amp, ftype='amplitude', **kw)
@@ -748,8 +748,8 @@ class EventRelatedPac(_PacObj, _PacVisual):
 
         # correct the p-values for multiple comparisons (Voytek's only)
         if "Voytek" in self.method:
-            logger.info(f"    Correct p-values for multiple-comparisons using "
-                        f"{mcp} correction of MNE-Python")
+            # logger.info(f"    Correct p-values for multiple-comparisons using "
+#                         f"{mcp} correction of MNE-Python")
             from mne.stats import fdr_correction, bonferroni_correction
             fcn = fdr_correction if mcp is 'fdr' else bonferroni_correction
             _, self._pvalues = fcn(self._pvalues, alpha=p)
@@ -813,7 +813,7 @@ class PreferredPhase(_PacObj, _PolarPlt):
         _PacObj.__init__(self, f_pha=f_pha, f_amp=f_amp, dcomplex=dcomplex,
                          cycle=cycle, width=width)
         _PacPlt.__init__(self)
-        logger.info("Preferred phase object defined")
+        # logger.info("Preferred phase object defined")
         self.method = 'Preferred-Phase (PP)'
 
     def fit(self, pha, amp, n_bins=72):
@@ -878,8 +878,8 @@ class PreferredPhase(_PacObj, _PolarPlt):
         """
         x_amp = x_pha if not isinstance(x_amp, np.ndarray) else x_amp
         # extract phases and amplitudes
-        logger.info(f"    Extract phases (n_pha={len(self.xvec)}) and "
-                    f"amplitudes (n_amps={len(self.yvec)})")
+        # logger.info(f"    Extract phases (n_pha={len(self.xvec)}) and "
+#                     f"amplitudes (n_amps={len(self.yvec)})")
         kw = dict(keepfilt=False, edges=edges, n_jobs=1)
         pha = self.filter(sf, x_pha, ftype='phase', **kw)
         amp = self.filter(sf, x_amp, ftype='amplitude', **kw)
